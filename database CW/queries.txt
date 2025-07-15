@@ -1,0 +1,116 @@
+ 1. List the programs that are available in the college and the total number of students
+ enrolled in each.
+SELECT 
+    p.Program_Name,
+    COUNT(s.Student_ID) AS Total_Students
+FROM 
+    Program p
+LEFT JOIN 
+    Student s ON p.Program_Id = s.Program_Id
+GROUP BY 
+    p.Program_Name;
+
+
+2. List all the announcements made for a particular module starting from 1st May 2024 to
+ 28th May 2024.
+
+SELECT n.Notice_Title, n.Publish_on
+FROM Notice n
+JOIN Student_Module_Teacher_Notice smtn ON n.Notice_id = smtn.Notice_id
+WHERE smtn.Module_Id = 10001
+  AND n.Publish_on BETWEEN TO_DATE('2024-05-01', 'YYYY-MM-DD') AND TO_DATE('2024-05-28', 'YYYY-MM-DD');
+
+
+3. List the names of all modules that begin with the letter 'D', along with the total number of
+ resources uploaded for those modules.
+
+SELECT m.Module_Name, COUNT(r.Resource_Id) AS Total_Resources
+FROM Module m
+LEFT JOIN Student_Module_Resources smr ON m.Module_Id = smr.Module_Id
+LEFT JOIN Resources r ON smr.Resource_Id = r.Resource_Id
+WHERE m.Module_Name LIKE 'D%'
+GROUP BY m.Module_Name;
+
+
+4. List the names of all students along with their enrolled program who have not submitted any assessments for a particular module.
+
+SELECT s.Student_Name, p.Program_Name
+FROM Student s
+JOIN Program p ON s.Program_Id = p.Program_Id
+LEFT JOIN Student_Module_Assessment sma ON s.Student_ID = sma.Student_ID AND sma.Module_Id = 10001
+WHERE sma.Assessment_Id IS NULL;
+
+5. List all the teachers who teach more than one module.
+SELECT t.Teacher_Name
+FROM Teacher t
+JOIN Student_Module_Teacher smt ON t.Teacher_Id = smt.Teacher_Id
+GROUP BY t.Teacher_Name
+HAVING COUNT(DISTINCT smt.Module_Id) > 1;
+
+
+ Transaction query (15 Marks)
+1. Identify the module that has the latest assessment deadline.
+SELECT m.Module_Name, a.Deadline
+FROM Module m
+JOIN Student_Module_Assessment sma ON m.Module_Id = sma.Module_Id
+JOIN Assessment a ON sma.Assessment_Id = a.Assessment_Id
+WHERE a.Deadline = (
+    SELECT MAX(Deadline)
+    FROM Assessment
+);
+
+
+
+2. Find the top three students who have the highest total score across all modules.
+
+SELECT Student_Name, Total_Score
+FROM (
+    SELECT s.Student_Name, SUM(r.Total_Marks_Obtained) AS Total_Score
+    FROM Student s
+    JOIN Student_Module_Assessment sma ON s.Student_ID = sma.Student_ID
+    JOIN Result r ON sma.Result_Id = r.Result_Id
+    GROUP BY s.Student_Name
+    ORDER BY Total_Score DESC
+)
+WHERE ROWNUM <= 3;
+
+3. Find the total number of assessments for each program and the average score across all assessments in those programs.
+SELECT p.Program_Name, 
+       COUNT(a.Assessment_Id) AS Total_Assessments, 
+       AVG(r.Total_Marks_Obtained) AS Average_Score
+FROM Program p
+JOIN Student s ON p.Program_Id = s.Program_Id
+JOIN Student_Module_Assessment sma ON s.Student_ID = sma.Student_ID
+JOIN Assessment a ON sma.Assessment_Id = a.Assessment_Id
+JOIN Result r ON sma.Result_Id = r.Result_Id
+GROUP BY p.Program_Name;
+
+4. List the students who have scored above the average score in the ‘Databases’ module.
+SELECT s.Student_Name, r.Total_Marks_Obtained
+FROM Student s
+JOIN Student_Module_Assessment sma ON s.Student_ID = sma.Student_ID
+JOIN Result r ON sma.Result_Id = r.Result_Id
+JOIN Module m ON sma.Module_Id = m.Module_Id
+WHERE m.Module_Name = 'Databases'
+  AND r.Total_Marks_Obtained > (
+    SELECT AVG(r2.Total_Marks_Obtained)
+    FROM Student_Module_Assessment sma2
+    JOIN Result r2 ON sma2.Result_Id = r2.Result_Id
+    JOIN Module m2 ON sma2.Module_Id = m2.Module_Id
+    WHERE m2.Module_Name = 'Databases'
+);
+
+5. Display whether a student has passed or failed as remarks as per their total aggregate
+ marks obtained in a particular module. (NOTE: Consider total aggregate marks equal
+ to or above 40 is pass , below 40 is fail)
+COLUMN Remarks FORMAT A7
+SELECT s.Student_Name, m.Module_Name, r.Total_Marks_Obtained,
+       CASE
+           WHEN r.Total_Marks_Obtained >= 40 THEN 'Pass'
+           ELSE 'Fail'
+       END AS Remarks
+FROM Student s
+JOIN Student_Module_Assessment sma ON s.Student_ID = sma.Student_ID
+JOIN Result r ON sma.Result_Id = r.Result_Id
+JOIN Module m ON sma.Module_Id = m.Module_Id
+WHERE m.Module_Name = 'Databases';

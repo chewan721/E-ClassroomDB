@@ -1,0 +1,108 @@
+CREATE TABLE Program (
+    Program_Id NUMBER(10) PRIMARY KEY NOT NULL,
+    Program_Name CHARACTER(15) NOT NULL,
+    Faculty CHARACTER(30) NOT NULL
+);
+DESC Program;
+CREATE TABLE Module (
+    Module_Id NUMBER(10) PRIMARY KEY NOT NULL,
+    Module_Name CHARACTER(25) NOT NULL,
+    Credit_Hour NUMBER(12) NOT NULL
+);
+DESC Module;
+CREATE TABLE Teacher (
+    Teacher_Id NUMBER(10) PRIMARY KEY NOT NULL,
+    Teacher_Name CHARACTER(20) NOT NULL,
+    Teacher_Contact CHARACTER(15) NOT NULL,
+    Teacher_Address CHARACTER(20) NOT NULL
+);
+DESC Teacher;
+CREATE TABLE Resources (
+    Resource_Id NUMBER(12) PRIMARY KEY NOT NULL,
+    Resource_Type CHARACTER(20) NOT NULL,
+    Duration CHARACTER(10) NOT NULL
+);
+DESC Resources;
+CREATE TABLE Assessment (
+    Assessment_Id NUMBER(15) PRIMARY KEY NOT NULL,
+    Assessment_Title CHARACTER(20) NOT NULL,
+    Weightage CHARACTER(10) NOT NULL,
+    Status CHARACTER(10) NOT NULL,
+    Release DATE NOT NULL,
+    Deadline DATE NOT NULL
+);
+DESC Assessment;
+CREATE TABLE Notice (
+    Notice_id NUMBER(10) PRIMARY KEY NOT NULL,
+    Notice_Title CHARACTER(20) NOT NULL,
+    Publish_on DATE NOT NULL
+);
+DESC Notice;
+CREATE TABLE Result (
+    Result_Id NUMBER(10) PRIMARY KEY NOT NULL,
+    result_status CHARACTER(15) NOT NULL,
+    Total_Marks_Obtained NUMBER(3) NOT NULL
+);
+DESC Result;
+CREATE TABLE Student (
+    Student_ID NUMBER(10) PRIMARY KEY NOT NULL,
+    Program_Id NUMBER(10) REFERENCES Program(Program_Id),
+    Student_Name CHARACTER(20) NOT NULL,
+    Student_Contact CHARACTER(15) UNIQUE NOT NULL,
+    Student_Address CHARACTER(20) NOT NULL,
+    Enrolled DATE NOT NULL
+);
+DESC Student;
+CREATE TABLE Student_Module (
+    Student_ID NUMBER(10) NOT NULL,
+    Module_Id NUMBER(10) NOT NULL,
+    PRIMARY KEY (Student_ID, Module_Id),
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Module_Id) REFERENCES Module(Module_Id)
+);
+DESC Student_Module;
+CREATE TABLE Student_Module_Resources (
+    Student_ID NUMBER(10) NOT NULL,
+    Module_Id NUMBER(10) NOT NULL,
+    Resource_Id NUMBER(12) NOT NULL,
+    PRIMARY KEY (Student_ID, Module_Id, Resource_Id),
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Module_Id) REFERENCES Module(Module_Id),
+    FOREIGN KEY (Resource_Id) REFERENCES Resources(Resource_Id)
+);
+DESC Student_Module_Resources;
+CREATE TABLE Student_Module_Teacher (
+    Student_ID NUMBER(10) NOT NULL,
+    Module_Id NUMBER(10) NOT NULL,
+    Teacher_Id NUMBER(10) NOT NULL,
+    PRIMARY KEY (Student_ID, Module_Id, Teacher_Id),
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Module_Id) REFERENCES Module(Module_Id),
+    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id)
+);
+DESC Student_Module_Teacher;
+CREATE TABLE Student_Module_Teacher_Notice (
+    Student_ID NUMBER(10) NOT NULL,
+    Module_Id NUMBER(10) NOT NULL,
+    Teacher_Id NUMBER(10) NOT NULL,
+    Notice_id NUMBER(10) NOT NULL,
+    PRIMARY KEY (Student_ID, Module_Id, Teacher_Id, Notice_id),
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Module_Id) REFERENCES Module(Module_Id),
+    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id),
+    FOREIGN KEY (Notice_id) REFERENCES Notice(Notice_id)
+);
+DESC Student_Module_Teacher_Notice;
+CREATE TABLE Student_Module_Assessment (
+    Student_ID NUMBER(10) NOT NULL,
+    Module_Id NUMBER(10) NOT NULL,
+    Assessment_Id NUMBER(15) NOT NULL,
+    Result_Id NUMBER(7) NOT NULL,
+    PRIMARY KEY (Student_ID, Module_Id, Assessment_Id),
+    FOREIGN KEY (Student_ID) REFERENCES Student(Student_ID),
+    FOREIGN KEY (Module_Id) REFERENCES Module(Module_Id),
+    FOREIGN KEY (Assessment_Id) REFERENCES Assessment(Assessment_Id),
+    FOREIGN KEY (Result_Id) REFERENCES Result(Result_Id)
+);
+DESC Student_Module_Assessment;
+SELECT*FROM TAB;

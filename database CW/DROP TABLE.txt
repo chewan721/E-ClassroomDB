@@ -1,0 +1,13 @@
+DROP TABLE Student_Module_Teacher_Notice;
+DROP TABLE Student_Module_Assessment;
+DROP TABLE Student_Module_Teacher;
+DROP TABLE Student_Module_Resources;
+DROP TABLE Student_Module;
+DROP TABLE Result;
+DROP TABLE Notice;
+DROP TABLE Assessment;
+DROP TABLE Resources;
+DROP TABLE Teacher;
+DROP TABLE Module;
+DROP TABLE Student;
+DROP TABLE Program;
